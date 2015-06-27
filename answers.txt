@@ -1,0 +1,36 @@
+Exercise 1
+
+Step 1: simpledb.Parser.main() and simpledb.Parser.start() simpledb.Parser.main() is the entry point for the SimpleDB system. It calls simpledb.Parser.start(). The latter performs three main actions:
+
+     - It populates the SimpleDB catalog from the catalog text file provided by the user as argument (Database.getCatalog().loadSchema(argv[0]);).
+     - For each table defined in the system catalog, it computes statistics over the data in the table by calling: TableStats.computeStatistics(), which then does: TableStats s = new TableStats(tableid, IOCOSTPERPAGE);
+     - It processes the statements submitted by the user (processNextStatement(new ByteArrayInputStream(statementBytes));)
+
+ 
+Step 2: simpledb.Parser.processNextStatement()
+This method takes two key actions:
+
+     - First, it gets a physical plan for the query by invoking handleQueryStatement((ZQuery)s);
+     - Then it executes the query by calling query.execute(); 
+
+
+Step 3: 
+
+simpledb.Parser.handleQueryStatement()
+
+     - It constructs a logical plan for the query using parseQueryLogicalPlan().
+     - From this logical plan, it constructs a physical plan by calling the physicalPlan() method.
+     - It prints out the query plan.
+
+
+simpledb.Parser.parseQueryLogicalPlan()
+     
+     - It looks in the FROM clause and makes sure all the tables are in the catalog, then adds them to the scan list using lp.addScan(id, name).
+     - It then looks in the WHERE clause and adds filter and join nodes using processExpression(tid, wx, lp).
+     - It then looks in the GROUP BY clause and determines the group by field.
+     - It then looks in the SELECT clause and checks for expressions, aggregates, and other fields.
+     - Finally, it adds a sorting order as indicated by the ORDER BY field, if applicable.
+
+
+simpledb.LogicalPlan.physicalPlan()
+     - It converts the logical plan into a physical plan by attempting to order the joins based on the table stats.
